@@ -1,0 +1,8 @@
+
+---
+input:
+  - instance_ip_vm1
+  - instance_server_private_key_
+output: []
+engine: ansible
+...

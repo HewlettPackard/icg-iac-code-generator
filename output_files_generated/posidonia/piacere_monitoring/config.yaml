@@ -1,0 +1,8 @@
+
+---
+input:
+  - instance_ip_OracleDB
+  - instance_server_private_key_dbCredentials
+output: []
+engine: ansible
+...

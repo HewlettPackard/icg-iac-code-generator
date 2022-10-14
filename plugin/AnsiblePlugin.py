@@ -15,7 +15,7 @@
 
 import logging
 
-from icgparser.IntermediateRepresentationUtility import IntermediateRepresentationResources
+from icgparser.ModelResourcesUtilities import get_ir_key_name, ModelResources
 from plugin import TemplateUtils
 from plugin.PluginException import PluginResourceNotFoundError
 
@@ -24,6 +24,9 @@ def clean_operating_system_name(operating_system):
     operating_system_lower_case = operating_system.lower()
     logging.info(f"AnsiblePlugin: extracting operating system from {operating_system}")
     if "ubuntu" in operating_system_lower_case:
+        return "ubuntu"
+    ## TODO to be update with more explicit parameter
+    if "ami" in operating_system_lower_case:
         return "ubuntu"
     else:
         raise PluginResourceNotFoundError(plugin_name="AnsiblePlugin", resource_name="operating system")
@@ -46,8 +49,8 @@ def create_template_file(parameters, language, operating_system, template_name):
 
 
 def create_files(step, output_path):
-    language = step[IntermediateRepresentationResources.LANGUAGE.value]
-    step_name = step[IntermediateRepresentationResources.STEP_NAME.value]
+    language = step[get_ir_key_name(ModelResources.LANGUAGE)]
+    step_name = step[get_ir_key_name(ModelResources.STEP_NAME)]
     parameters = step["data"]
     for resource_name, resource in parameters.items():
         logging.info("Creating template for resource '%s'", resource_name)

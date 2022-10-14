@@ -27,8 +27,9 @@ resource "openstack_compute_instance_v2" "vm1" {
   image_name  = "Ubuntu-Focal-20.04-Daily-2022-04-19"
   flavor_name = "small"
   key_pair    = openstack_compute_keypair_v2.user1.name
-  network {
+  network { 
     port = openstack_networking_port_v2.net1.id
+    
   }
 }
 

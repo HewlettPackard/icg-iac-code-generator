@@ -16,12 +16,13 @@
 
 # Create virtual machine
 resource "openstack_compute_instance_v2" "{{ infra_element_name }}" {
-  name        = "{{ vm_name }}"
+  name        = "{{ name }}"
   image_name  = "{{ os }}"
   flavor_name = "{{ vm_flavor }}"
   key_pair    = openstack_compute_keypair_v2.{{ credentials }}.name
-  network {
-    port = openstack_networking_port_v2.{{ i1.belongsTo }}.id
+  network { {% for key, value in context().items() %}{% if not callable(value)%}{%if key.startswith('NetworkInterface') %}
+    port = openstack_networking_port_v2.{{ value.belongsTo }}.id
+    {% endif %}{% endif %}{% endfor %}
   }
 }
 

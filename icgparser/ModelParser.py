@@ -26,8 +26,10 @@
 #           model       the input model to be translated into the ICG intermediate representation
 # -------------------------------------------------------------------------
 import logging
+import re
 from icgparser import DomlParserUtilities
 from icgparser.DomlParserUtilities import get_reference_list_if_exists
+from icgparser.ModelResourcesUtilities import ModelResourcesUtilities
 
 OUTPUT_BASE_DIR_PATH = "output_files_generated/"
 doml_layers = {
@@ -51,9 +53,12 @@ def include_missing_objects_from_infrastructure_layer(to_step):
                                                                                 infra_object_representation)
         infra_object_representation = DomlParserUtilities.add_infrastructure_information(obj["resource"],
                                                                                          infra_object_representation)
-        ## TODO fix attenzione che sovrascrive
+
         ir_key_name = to_camel_case(obj["reference"].eType.name)
-        to_step["data"][ir_key_name] = [infra_object_representation]
+        if ir_key_name in to_step["data"].keys():
+            to_step["data"][ir_key_name].append(infra_object_representation)
+        else:
+            to_step["data"][ir_key_name] = [infra_object_representation]
     return to_step
 
 
@@ -91,30 +96,34 @@ def parse_infrastructural_objects(doml_model):
 
 def parse_application_layer(doml_model, infra_object_step):
     logging.info("DOML parsing: getting active configuration")
-    application_object_step = {"programming_language": "ansible", "data": {}}
     active_configuration = doml_model.activeConfiguration
-    logging.info(f"Found active configuration '{active_configuration.name}'")
-    for deployment in list(active_configuration.deployments):
-        deployment_component_name = deployment.component.name
-        logging.info(f'Parsing deployment for component {deployment_component_name}')
-        object_representation = {}
+    if not active_configuration:
+        logging.info("No application layer found")
+    else:
+        application_object_step = {"programming_language": "ansible", "data": {}}
 
-        application_resource = deployment.eGet("component")
-        ## TODO refactoring -> far diventare lista nodi? nel monitoring sono più nodi
-        vm = deployment.eGet("node")
-        try:
-            for infra_vm in infra_object_step.get("data").get("vms"):
-                if infra_vm.get("infra_element_name") == vm.name:
-                    object_representation["node"] = infra_vm
-        except Exception:
-            logging.error(f"parsing error: no vm {vm.name} found for deployment {deployment_component_name}")
+        logging.info(f"Found active configuration '{active_configuration.name}'")
+        for deployment in list(active_configuration.deployments):
+            deployment_component_name = deployment.component.name
+            logging.info(f'Parsing deployment for component {deployment_component_name}')
+            object_representation = {}
 
-        object_representation = DomlParserUtilities.save_annotations(application_resource, object_representation)
-        object_representation = DomlParserUtilities.save_attributes(application_resource, object_representation)
+            application_resource = deployment.eGet("component")
+            ## TODO refactoring -> far diventare lista nodi? nel monitoring sono più nodi
+            vm = deployment.eGet("node")
+            try:
+                for infra_vm in infra_object_step.get("data").get("vms"):
+                    if infra_vm.get("infra_element_name") == vm.name:
+                        object_representation["node"] = infra_vm
+            except Exception:
+                logging.error(f"parsing error: no vm {vm.name} found for deployment {deployment_component_name}")
 
-        application_object_step["data"][deployment_component_name] = object_representation
-        application_object_step["step_name"] = deployment_component_name
-    return application_object_step
+            object_representation = DomlParserUtilities.save_annotations(application_resource, object_representation)
+            object_representation = DomlParserUtilities.save_attributes(application_resource, object_representation)
+
+            application_object_step["data"][deployment_component_name] = object_representation
+            application_object_step["step_name"] = deployment_component_name
+        return application_object_step
 
 
 def create_intermediate_representation(model_loaded):
@@ -123,18 +132,32 @@ def create_intermediate_representation(model_loaded):
     intermediate_representation_steps = []
     infra_object_step = parse_infrastructural_objects(model_loaded)
     application_step = parse_application_layer(model_loaded, infra_object_step)
-    intermediate_representation_steps.append(infra_object_step)
-    intermediate_representation_steps.append(application_step)
+    (intermediate_representation_steps.append(infra_object_step) if infra_object_step is not None else None)
+    (intermediate_representation_steps.append(application_step) if application_step is not None else None)
     intermediate_representation = {
         "output_path": output_path,
         "steps": intermediate_representation_steps
     }
     return intermediate_representation
 
+def get_doml_version(doml_model):
+    logging.info("Searching for DOML version")
+    doml_version = doml_model.version
+    if not doml_version.isnumeric():
+        logging.info(f"Cleaning doml version {doml_version} from letters")
+        doml_version = re.sub("[^0-9]", "", doml_version)
+    logging.info(f"Found DOML version {doml_version}")
+    return doml_version
 
 def parse_model(model_path, is_multiecore_metamodel, metamodel_directory):
+
     rset = DomlParserUtilities.load_metamodel(metamodel_directory=metamodel_directory,
                                               is_multiecore=is_multiecore_metamodel)
     doml_model = DomlParserUtilities.load_model(model_path, rset)
+    doml_version = get_doml_version(doml_model)
+    logging.info(f"Setup Singleton ModelResourcesUtilities with doml version {doml_version}")
+    ModelResourcesUtilities(doml_version)
     intermediate_representation = create_intermediate_representation(doml_model)
     return intermediate_representation
+
+

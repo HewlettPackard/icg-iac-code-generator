@@ -1,89 +1,36 @@
 {
-  "output_path": "output_files_generated/nginx_openstack/",
+  "output_path": "output_files_generated/nio3_test_exec_env/",
   "steps": [
     {
       "data": {
-        "computingGroup": [
-          {
-            "http": {
-              "cidr": [
-                "0.0.0.0/0"
-              ],
-              "fromPort": 80,
-              "kind": "INGRESS",
-              "name": "http",
-              "protocol": "tcp",
-              "toPort": 80
-            },
-            "https": {
-              "cidr": [
-                "0.0.0.0/0"
-              ],
-              "fromPort": 443,
-              "kind": "INGRESS",
-              "name": "https",
-              "protocol": "tcp",
-              "toPort": 443
-            },
-            "icmp": {
-              "cidr": [
-                "0.0.0.0/0"
-              ],
-              "fromPort": -1,
-              "kind": "EGRESS",
-              "name": "icmp",
-              "protocol": "icmp",
-              "toPort": -1
-            },
-            "infra_element_name": "sg",
-            "ssh": {
-              "cidr": [
-                "0.0.0.0/0"
-              ],
-              "fromPort": 22,
-              "kind": "INGRESS",
-              "name": "ssh",
-              "protocol": "tcp",
-              "toPort": 22
-            }
-          }
-        ],
-        "credentials": [
-          {
-            "infra_element_name": "user1",
-            "user": "user1"
-          }
-        ],
         "networks": [
           {
-            "addressRange": "16.0.0.0/24",
+            "addressRange": "0.0.0.0/24",
             "infra_element_name": "net1",
-            "infra_sgs": [
-              "icmp",
-              "http",
-              "https",
-              "ssh"
-            ],
             "name": "concrete_net",
             "protocol": "tcp/ip"
           }
         ],
         "provider": "openstack",
+        "storages": [
+          {
+            "infra_element_name": "disk0",
+            "label": "disk0",
+            "name": "concrete_disk",
+            "size_gb": 40
+          }
+        ],
         "vms": [
           {
-            "credentials": "user1",
-            "group": "sg",
-            "i1": {
-              "associated": "sg",
+            "NetworkInterface_i1": {
               "belongsTo": "net1",
-              "endPoint": "16.0.0.1",
               "name": "i1"
             },
+            "cpu_count": 2,
             "infra_element_name": "vm1",
+            "memory_mb": 8192.0,
             "name": "concrete_vm",
-            "os": "Ubuntu-Focal-20.04-Daily-2022-04-19",
-            "vm_flavor": "small",
-            "vm_name": "nginx-host"
+            "os": "ubuntu-20.04.3"
           }
         ]
       },
@@ -94,49 +41,20 @@
         "piacere_monitoring": {
           "name": "piacere_monitoring",
           "node": {
-            "credentials": "user1",
-            "group": "sg",
-            "i1": {
-              "associated": "sg",
+            "NetworkInterface_i1": {
               "belongsTo": "net1",
-              "endPoint": "16.0.0.1",
               "name": "i1"
             },
+            "cpu_count": 2,
             "infra_element_name": "vm1",
+            "memory_mb": 8192.0,
             "name": "concrete_vm",
-            "os": "Ubuntu-Focal-20.04-Daily-2022-04-19",
-            "vm_flavor": "small",
-            "vm_name": "nginx-host"
+            "os": "ubuntu-20.04.3"
           }
         }
       },
       "programming_language": "ansible",
       "step_name": "piacere_monitoring"
-    },
-    {
-      "data": {
-        "nginx": {
-          "name": "nginx",
-          "node": {
-            "credentials": "user1",
-            "group": "sg",
-            "i1": {
-              "associated": "sg",
-              "belongsTo": "net1",
-              "endPoint": "16.0.0.1",
-              "name": "i1"
-            },
-            "infra_element_name": "vm1",
-            "name": "concrete_vm",
-            "os": "Ubuntu-Focal-20.04-Daily-2022-04-19",
-            "vm_flavor": "small",
-            "vm_name": "nginx-host"
-          },
-          "source_code": "/usr/share/nginx/html/index.html"
-        }
-      },
-      "programming_language": "ansible",
-      "step_name": "nginx"
     }
   ]
 }

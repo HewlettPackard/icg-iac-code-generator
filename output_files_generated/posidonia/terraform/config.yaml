@@ -1,5 +1,28 @@
+
+
 ---
 engine: terraform
-input: []
-output: []
+input:
+  - OS_USERNAME
+  - OS_PASSWORD
+  - OS_AUTH_URL
+  - OS_PROJECT_NAME
+output:
+
+  - instance_server_public_key_dbCredentials
+  - instance_server_private_key_dbCredentials
+  - instance_ip_OracleDB
+
+  - instance_server_public_key_GestautKeyName
+  - instance_server_private_key_GestautKeyName
+  - instance_ip_gestaut_vm
+
+  - instance_server_public_key_ESKeyName
+  - instance_server_private_key_ESKeyName
+  - instance_ip_elasticsearch_vm
+
+  - instance_server_public_key_EdiKeyName
+  - instance_server_private_key_EdiKeyName
+  - instance_ip_edi_vm
+
 ...

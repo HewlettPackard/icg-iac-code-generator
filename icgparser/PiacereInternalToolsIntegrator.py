@@ -1,8 +1,7 @@
 import logging
 from distutils.dir_util import copy_tree
-
 from icgparser import IntermediateRepresentationUtility
-from icgparser.IntermediateRepresentationUtility import IntermediateRepresentationResources
+from icgparser.ModelResourcesUtilities import ModelResources
 
 
 def extract_info_for_monitoring_agents(intermediate_representation):
@@ -10,7 +9,7 @@ def extract_info_for_monitoring_agents(intermediate_representation):
     monitoring_object_step = {"programming_language": "ansible",
                               "step_name": "piacere_monitoring",
                               "data": {"piacere_monitoring": {"name": "piacere_monitoring"}}}
-    vms = IntermediateRepresentationUtility.find_objects(IntermediateRepresentationResources.VIRTUAL_MACHINES,
+    vms = IntermediateRepresentationUtility.find_objects(ModelResources.VIRTUAL_MACHINES,
                                                          intermediate_representation)
     # TODO restore these 2 commented lines: monitoring could be installed on multiple nodes!
     # monitoring_object_step["data"]["monitoring"]["nodes"] = []

@@ -11,18 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 import json
 import logging
 import os
 import tarfile
-import time
 import uuid
 import yaml
 
 from icgparser import ModelParser, PiacereInternalToolsIntegrator, IntermediateRepresentationUtility
-from icgparser.IntermediateRepresentationUtility import IntermediateRepresentationResources
+from icgparser.ModelResourcesUtilities import ModelResourcesUtilities, ModelResources, get_ir_key_name
 from plugin import AnsiblePlugin, TerraformPlugin
 from utility.FileParsingUtility import replace_none_with_empty_str
 
@@ -47,7 +46,7 @@ def choose_plugin(parameters, template_generated_folder):
     for step in parameters["steps"]:
         if step["programming_language"] == "ansible":
             logging.info("Ansible Plugin chosen")
-            step_name = step[IntermediateRepresentationResources.STEP_NAME.value]
+            step_name = step[get_ir_key_name(ModelResources.STEP_NAME)]
             metadata_root_folder["iac"].append(step_name)
             # input_data = step["data"]
             AnsiblePlugin.create_files(step, template_generated_folder)
@@ -115,18 +114,18 @@ def create_temp_model_file(model_xml):
 
 
 def create_intermediate_representation(model_path, is_multiecore_metamodel, metamodel_directory):
+
     logging.info("Calling ICG Parser for creating intermediate representation")
     intermediate_representation = ModelParser.parse_model(model_path=model_path,
                                                           is_multiecore_metamodel=is_multiecore_metamodel,
                                                           metamodel_directory=metamodel_directory)
-    # intermediate_representation = reorganize_info(intermediate_representation)
     logging.info(f"Successfully created intermediate representation {intermediate_representation}")
     logging.info("Calling ICG PiacereInternalToolsIntegrator to add info for PIACERE internal tools")
     intermediate_representation = PiacereInternalToolsIntegrator.add_internal_tool_information(intermediate_representation)
-    logging.warning("Force adding sg information in network") ## TODO fix from doml
+    logging.warning("Force adding sg information in network")  ## TODO fix from doml
     intermediate_representation = IntermediateRepresentationUtility.force_add_resources_name(
-        IntermediateRepresentationResources.NETWORKS,
-        IntermediateRepresentationResources.SECURITY_GROUPS,
+        ModelResources.NETWORKS,
+        ModelResources.SECURITY_GROUPS,
         intermediate_representation)
     intermediate_representation_path = "input_file_generated/ir.json"
     save_file(intermediate_representation, intermediate_representation_path)
@@ -186,6 +185,7 @@ def create_iac_from_doml_path(model_path, is_multiecore_metamodel, metamodel_dir
     :returns: path to the zip folder containing the IaC files
     :type: str
     """
+    logging.info("Creating iac files: parse and plugins will be called")
     intermediate_representation = create_intermediate_representation(model_path, is_multiecore_metamodel,
                                                                      metamodel_directory)
     template_generated_folder = create_iac_from_intermediate_representation(intermediate_representation)

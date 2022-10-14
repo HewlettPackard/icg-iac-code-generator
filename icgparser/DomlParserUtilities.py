@@ -56,7 +56,7 @@ def save_attributes(from_object, to_object, skip_component_name=False):
     if not to_object:
         to_object = {}
     for attribute in from_object.eClass.eAllAttributes():
-        if from_object.eGet(attribute.name):
+        if from_object.eGet(attribute.name) is not None:
             key = attribute.name
             if skip_component_name and attribute.name == "name":
                 key = "infra_element_name"
@@ -109,7 +109,7 @@ def save_inner_components(from_object, to_object):
     for obj in inner_components:
         if not isinstance(obj, EOrderedSet):  # TODO espandere info
             if obj.name is not None:
-                object_name = obj.name
+                object_name = obj.eClass.name + "_" + obj.name
             else:
                 logging.warning(f'Object name not available, changing it using class name: {obj.eClass.name}')
                 object_name = obj.eClass.name
