@@ -14,14 +14,18 @@
 #-------------------------------------------------------------------------
 #}
 
-output "instance_server_public_key_{{ credentials }}" {
+output "instance_server_public_key_{{ credentials }}_{{ infra_element_name }}" {
   value = aws_key_pair.{{ credentials }}.public_key
 }
 
-output "instance_public_ip_{{ infra_element_name }}" {
+output "instance_server_public_ip_{{ infra_element_name }}" {
   value = aws_instance.{{infra_element_name}}.public_ip
 }
 
 output "instance_public_dns_{{ infra_element_name }}" {
   value = aws_instance.{{infra_element_name}}.public_dns
+}
+
+output "instance_server_private_key_{{ credentials }}_{{ infra_element_name }}" {
+  value = nonsensitive(tls_private_key.example.private_key_openssh)
 }

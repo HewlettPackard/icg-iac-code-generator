@@ -27,8 +27,10 @@ def add_step(step, intermediate_representation, step_number):
 
 
 def force_add_resources_name(to_resource, from_resource, intermediate_representation):
+    logging.info(f"force_add_resources_name of resource {from_resource} into {to_resource} ")
     sec_groups = find_objects(from_resource, intermediate_representation)
     sec_groups_names = []
+    logging.info(f"Found sec_groups {sec_groups} to be added into {from_resource}")
     if sec_groups and len(sec_groups):
         for key, sg in sec_groups[0].items():
             if isinstance(sg, dict) and sg["name"]:

@@ -21,15 +21,15 @@ data "openstack_networking_network_v2" "external" {
 }
 
 
+
 # Create virtual machine
 resource "openstack_compute_instance_v2" "vm1" {
-  name        = "concrete_vm"
-  image_name  = "ubuntu-20.04.3"
+  name        = "con_vm1"
+  image_name  = "centos7_64Guest"
   flavor_name = ""
-  key_pair    = openstack_compute_keypair_v2..name
-  network { 
-    port = openstack_networking_port_v2.net1.id
-    
+  key_pair    = openstack_compute_keypair_v2.ssh_key.name
+  network {
+    port = openstack_networking_port_v2.i1_networking_port.id
   }
 }
 
@@ -46,36 +46,38 @@ resource "openstack_compute_floatingip_associate_v2" "vm1_floating_ip_associatio
 }
 
 
-## Network
 
-# Create Network
-resource "openstack_networking_network_v2" "net1" {
-  name = "concrete_net"
+# Retrive default security group
+data "openstack_compute_secgroup_v2" "default" {
+  name = "default"
 }
-
 
 
 # Attach networking port
-resource "openstack_networking_port_v2" "net1" {
-  name           = "concrete_net"
-  network_id     = openstack_networking_network_v2.net1.id
+resource "openstack_networking_port_v2" "i1_networking_port" {
+  name           = "i1"
+
   admin_state_up = true
-  security_group_ids = [
-  
-  ]
-  # fixed_ip { ## TODO to be fixed (not working for posidonia example, needed for openstack example)
-  #  subnet_id = openstack_networking_subnet_v2.net1_subnet.id
-  #}
+  security_group_ids = [ openstack_compute_secgroup_v2.default.id ]
+  fixed_ip {
+   subnet_id = openstack_networking_subnet_v2.net1_subnet.id
+  }
 }
 
-# Create router
-resource "openstack_networking_router_v2" "net1_router" {
-  name                = "net1_router"
-  external_network_id = data.openstack_networking_network_v2.external.id    #External network id
+
+## Network
+# Retrieve Network
+data "openstack_networking_network_v2" "net1" {
+  name = "network"
 }
-# Router interface configuration
-resource "openstack_networking_router_interface_v2" "net1_router_interface" {
-  router_id = openstack_networking_router_v2.net1_router.id
-  # subnet_id = openstack_networking_subnet_v2.net1_subnet.id ## TODO to be fixed (not working for posidonia example, needed for openstack example)
+
+
+
+
+
+# Create ssh keys
+resource "openstack_compute_keypair_v2" "ssh_key" {
+  name       = ""
+  # public_key = ""
 }
 

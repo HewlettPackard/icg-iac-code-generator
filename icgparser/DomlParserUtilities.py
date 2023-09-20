@@ -15,13 +15,17 @@
 
 import logging
 
-from pyecore.ecore import EOrderedSet, EEnumLiteral
+from pyecore.ecore import EOrderedSet, EEnumLiteral, EcoreUtils
 from pyecore.resources import ResourceSet, URI, global_registry
 import pyecore.ecore as Ecore  # This gets a reference to the Ecore metamodel implementation
 
 TO_BE_PARSED_RESOURCES = {}
 METAMODEL_SECTIONS = ["doml", "commons", "application", "infrastructure", "concrete", "optimization"]
 METAMODEL_DIRECTORY = "icgparser/doml"
+
+doml_layers = {
+    "active_infrastructure_layer": "activeInfrastructure",
+}
 
 
 def extract_value_from(ecore_object_value):
@@ -33,6 +37,13 @@ def extract_value_from(ecore_object_value):
         value = ecore_object_value
     return value
 
+def get_infrastructure_element_from(concrete_element):
+    try:
+        return concrete_element.maps
+    except Exception:
+        logging.warning(f"No infrastructure link found for element {concrete_element.name}")
+        return None
+
 
 def get_reference_list_if_exists(from_object, reference):
     reference_from_object = from_object.eGet(reference.name)
@@ -40,6 +51,36 @@ def get_reference_list_if_exists(from_object, reference):
         return reference_from_object
     else:
         return None
+
+def get_references(from_object):
+    refs = from_object.eClass.eAllReferences()
+    return list(refs)
+
+def get_external_references(from_object):
+    try:
+        return list(from_object.eClass.eReferences)
+    except Exception:
+        logging.warning(f"Error searching for references for object {from_object.name}")
+        return None
+
+
+def get_resources_from_concrete_layer(doml_model, resource_name):
+    concretization_layer = get_concrete_layer(doml_model)
+    providers = concretization_layer.providers
+    for provider in providers:
+        logging.info(f'Searching object {resource_name} in concrete layer "{concretization_layer.name}"')
+        try:
+            resources = provider.eGet(resource_name+"")
+            logging.info(f"Found {len(list(resources))} {resource_name}")
+            return resources
+        except Exception:
+            logging.warning(f"No resources found for {resource_name}")
+            return []
+
+
+def get_concrete_layer(doml_model):
+    concretization_layer = doml_model.eGet(doml_layers["active_infrastructure_layer"])
+    return concretization_layer
 
 
 def save_annotations(from_object, to_object):
@@ -52,7 +93,7 @@ def save_annotations(from_object, to_object):
 
 
 def save_attributes(from_object, to_object, skip_component_name=False):
-    print(f'Saving attributes from {from_object.name}')
+    #print(f'Saving attributes from {from_object.name}')
     if not to_object:
         to_object = {}
     for attribute in from_object.eClass.eAllAttributes():
@@ -74,6 +115,19 @@ def save_attributes(from_object, to_object, skip_component_name=False):
     return to_object
 
 
+def update_missing_parsed_list_resources(resource, reference, is_to_be_parsed):
+    for attribute in resource.eClass.eAllAttributes():
+        resource_name = attribute.name
+        if is_to_be_parsed and not (resource_name in TO_BE_PARSED_RESOURCES):
+            print(f'Adding {resource_name} as missing parsed resource')
+            TO_BE_PARSED_RESOURCES[resource_name] = {"resource": resource,
+                                                    "reference": reference}  ## TODO introdurre interfaccia
+        elif not is_to_be_parsed and (resource_name in TO_BE_PARSED_RESOURCES):
+            print(f'Removing {resource_name} to the missing parsed resource')
+            del TO_BE_PARSED_RESOURCES[resource_name]
+        else:
+            print(f'update_missing_parsed_resources: skipping {resource_name}')
+
 def update_missing_parsed_resources(resource, reference, is_to_be_parsed):
     resource_name = resource.name
     if is_to_be_parsed and not (resource_name in TO_BE_PARSED_RESOURCES):
@@ -87,11 +141,56 @@ def update_missing_parsed_resources(resource, reference, is_to_be_parsed):
         print(f'update_missing_parsed_resources: skipping {resource_name}')
 
 
-def save_references_info(from_object, to_object):  ## TODO refactoring
-    refs = from_object.eClass.eAllReferences()
+def save_references_info(from_object, to_object):
+    logging.info(f"Searching references from {from_object}")
+    refs = from_object.eClass.eReferences
     for ref in refs:
         if get_reference_list_if_exists(from_object, ref):
+            logging.info(f'{ref.name} is a list')
+            object_representation_list = []
+            for reference_object in get_reference_list_if_exists(from_object, ref):
+                logging.info(f'{reference_object} is the list type')
+                if reference_object.name:
+                    logging.info(f'Adding info for ref_link "{reference_object.name}"')
+                    object_representation = {}
+                    object_representation = save_annotations(reference_object, object_representation)
+                    object_representation = save_attributes(reference_object, object_representation)
+                    object_representation = save_references_link(reference_object, object_representation)
+                    save_references_info(reference_object, object_representation)
+                    object_representation_list.append(object_representation)
+            to_object[ref.name] = object_representation_list
+            logging.info(f"References added: {to_object}")
+                # save_references_info(reference_object, to_object)
+        elif from_object.eGet(ref.name):
+            logging.info(f'Adding object info "{ref.name}"')
+            reference_object = from_object.eGet(ref.name)
+            object_representation = {}
+            object_representation = save_annotations(reference_object, object_representation)
+            object_representation = save_attributes(reference_object, object_representation)
+            object_representation = save_references_link(reference_object, object_representation)
+            to_object[ref.name] = object_representation
+    return to_object
+
+
+def save_references_link(from_object, to_object):  ## TODO refactoring
+    refs = from_object.eClass.eAllReferences()
+    for ref in refs:
+        reference_object_list = get_reference_list_if_exists(from_object, ref)
+        if reference_object_list:
+        #if get_reference_list_if_exists(from_object, ref):
             logging.info(f'{ref.name} is a list, skipping it')
+            logging.info(f'{reference_object_list}')
+            object_representation_list = []
+            for reference_object in reference_object_list:
+                object_representation = {}
+                #object_representation = save_annotations(reference_object, object_representation)
+                object_representation = save_attributes(reference_object, object_representation)                    
+                #object_representation = save_references_link(reference_object, object_representation)
+                #save_references_info(reference_object, object_representation)
+                object_representation_list.append(object_representation)                                
+                #update_missing_parsed_list_resources(reference_object, reference=ref, is_to_be_parsed=True)
+            logging.info(f"References added: {object_representation_list}")
+            to_object[ref.name] = object_representation_list                                            
         ## TODO trattare la lista
         elif from_object.eGet(ref.name):
             logging.info(f'Adding reference "{ref.name}" location')
@@ -100,34 +199,50 @@ def save_references_info(from_object, to_object):  ## TODO refactoring
             update_missing_parsed_resources(reference_object, reference=ref, is_to_be_parsed=True)
     return to_object
 
-def get_references(from_object):
-    refs = from_object.eClass.eAllReferences()
-    return list(refs)
+def save_concrete_references_info(from_object, to_object):
+    if "refs" in dir(from_object):
+        logging.info(f"Adding concrete references for object {from_object.name}")
+        refs = from_object.refs
+        for ref_elem in refs:
+            logging.info(f"Found reference {ref_elem} for object {from_object.name}")
+            inner_component = save_attributes(ref_elem, {})
+            save_references_link(ref_elem, inner_component)
+            to_object[ref_elem.name] = inner_component
+    else:
+        logging.info(f"No concrete references found for object {from_object.name}")
+    return to_object
 
 def save_inner_components(from_object, to_object):
     inner_components = from_object.eAllContents()
     for obj in inner_components:
-        if not isinstance(obj, EOrderedSet):  # TODO espandere info
-            if obj.name is not None:
-                object_name = obj.eClass.name + "_" + obj.name
-            else:
-                logging.warning(f'Object name not available, changing it using class name: {obj.eClass.name}')
-                object_name = obj.eClass.name
-            print(f'Saving information from object {object_name}')
-            inner_component = save_attributes(obj, {})
-            save_references_info(obj, inner_component)
-            to_object[object_name] = inner_component
+        to_object = save_inner_component(obj, to_object)
+    return to_object
+
+def save_inner_component(component, to_object):
+    if not isinstance(component, EOrderedSet):  # TODO espandere info
+        logging.info("Saving inner component")
+        if component.name is not None:
+            object_name = component.eClass.name + "_" + component.name
+        else:
+            logging.warning(f'Object name not available, changing it using class name: {component.eClass.name}')
+            object_name = component.eClass.name
+        print(f'Saving information from object {object_name}')
+        inner_component = save_attributes(component, {})
+        save_references_link(component, inner_component)
+        to_object[object_name] = inner_component
     return to_object
 
 
 def add_infrastructure_information(infrastructure_element, to_object):
-    print(f'Saving infrastructure information from {infrastructure_element.name}')
-    update_missing_parsed_resources(infrastructure_element, is_to_be_parsed=False, reference=None)
-    save_attributes(infrastructure_element, to_object, skip_component_name=True)
-    save_references_info(infrastructure_element, to_object)
-    save_inner_components(infrastructure_element, to_object)
+    #print(f'Infrastructure information {infrastructure_element}')
+    print(f'Infrastructure information type {str(type(infrastructure_element))}')
+    if not "SProperty" in str(type(infrastructure_element)):
+        print(f'Saving infrastructure information from {infrastructure_element.name}')
+        update_missing_parsed_resources(infrastructure_element, is_to_be_parsed=False, reference=None)
+        save_attributes(infrastructure_element, to_object, skip_component_name=True)
+        save_references_link(infrastructure_element, to_object)
+        save_inner_components(infrastructure_element, to_object)
     return to_object
-
 
 def retrieve_missing_parsed_resources():
     return TO_BE_PARSED_RESOURCES
@@ -154,4 +269,14 @@ def load_metamodel(metamodel_directory=METAMODEL_DIRECTORY, is_multiecore=False)
 
 def load_model(model_path, rset):
     doml_model_resource = rset.get_resource(URI(model_path))
-    return doml_model_resource.contents[0]
+    DOML_MODEL = doml_model_resource.contents[0]
+    return DOML_MODEL
+
+
+def hasMaps(object):
+    try:
+        object.maps
+        return True
+    except:
+        logging.info("No maps found")
+        return False

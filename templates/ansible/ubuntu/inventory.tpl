@@ -13,11 +13,25 @@
 # limitations under the License.
 #-------------------------------------------------------------------------
 #}
+[local]
+127.0.0.1
+
+[local:vars]
+ansible_connection=local
+{%- for node in nodes %}
+instance_server_public_ip_{{ node.infra_element_name }}={% raw %}{{ instance_server_public_ip_{% endraw %}{{ node.infra_element_name }} {% raw %}}}{% endraw %}
+{%- endfor %}
 
 [{{ "servers_for_" ~ name }}]
-{% raw %}{{ instance_ip_{% endraw %}{{ node.infra_element_name }} {% raw %}}}{% endraw %}
+{%- for node in nodes %}
+{% raw %}{{ instance_server_public_ip_{% endraw %}{{ node.infra_element_name }} {% raw %}}}{% endraw %}
+{%- endfor %}
 
 [{{ "servers_for_" ~ name }}:vars]
 ansible_connection=ssh
+{%- if nodes[0].template is defined %}
+ansible_user=root
+{%- else %}
 ansible_user=ubuntu
+{%- endif %}
 ansible_ssh_private_key_file=ssh_key

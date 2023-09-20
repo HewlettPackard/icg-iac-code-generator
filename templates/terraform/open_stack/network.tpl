@@ -15,12 +15,32 @@
 #}
 {##-------- Variables ##}
 {%- set var_network_name = infra_element_name -%}
+{%- set var_security_groups = infra_sgs -%}
+{%- set preexinsting = preexisting -%}
 
 ## Network
+{%- if preexisting %}
+# Retrieve Network
+data "openstack_networking_network_v2" "{{ var_network_name }}" {
+  name = "{{ name }}"
+}
 
+{% for key, value in context().items() %}{% if not callable(value) %}{% if key.startswith('Subnet') %}
+# Retrieve Subnet
+data "openstack_networking_subnet_v2" "{{ value.name ~ "_subnet" }}" {
+  name = "{{ value.name }}"
+}
+{% endif %}{% endif %}{% endfor %}
+{%- else %}
 # Create Network
 resource "openstack_networking_network_v2" "{{ var_network_name }}" {
   name = "{{ name }}"
+}
+
+# Create router
+resource "openstack_networking_router_v2" "router_{{ var_network_name }}" { 
+  name                = "router_{{ var_network_name }}"
+  external_network_id = data.openstack_networking_network_v2.external.id
 }
 
 {##-------- Subnets Here ##}
@@ -32,29 +52,11 @@ resource "openstack_networking_subnet_v2" "{{ value.name ~ "_subnet" }}" {
   cidr            = "{{ value.addressRange }}"
   dns_nameservers = ["8.8.8.8", "8.8.8.4"]
 }
+
+# Create router interface on subnet
+resource "openstack_networking_router_interface_v2" "router_interface_{{ var_network_name }}_{{ value.name ~ "_subnet" }}" {
+  router_id = "${openstack_networking_router_v2.router_{{ var_network_name }}.id}"
+  subnet_id = "${openstack_networking_subnet_v2.{{ value.name ~ "_subnet" }}.id}"
+}
 {%-endif %}{% endif %}{% endfor %}
-
-# Attach networking port
-resource "openstack_networking_port_v2" "{{ infra_element_name }}" {
-  name           = "{{ name }}"
-  network_id     = openstack_networking_network_v2.{{ var_network_name }}.id
-  admin_state_up = true
-  security_group_ids = [
-  {% for sg in infra_sgs %}openstack_compute_secgroup_v2.{{sg}}.id,
-  {% endfor %}
-  ]
-  # fixed_ip { ## TODO to be fixed (not working for posidonia example, needed for openstack example)
-  #  subnet_id = openstack_networking_subnet_v2.{{ infra_element_name ~ "_subnet" }}.id
-  #}
-}
-
-# Create router
-resource "openstack_networking_router_v2" "{{ var_network_name ~ "_router" }}" {
-  name                = "{{ var_network_name ~ "_router" }}"
-  external_network_id = data.openstack_networking_network_v2.external.id    #External network id
-}
-# Router interface configuration
-resource "openstack_networking_router_interface_v2" "{{ var_network_name ~ "_router_interface" }}" {
-  router_id = openstack_networking_router_v2.{{ var_network_name ~ "_router" }}.id
-  # subnet_id = openstack_networking_subnet_v2.{{ infra_element_name ~ "_subnet" }}.id ## TODO to be fixed (not working for posidonia example, needed for openstack example)
-}
+{%- endif %}

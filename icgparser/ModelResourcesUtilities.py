@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 
 class ModelResources(Enum):
@@ -8,6 +9,7 @@ class ModelResources(Enum):
     VIRTUAL_MACHINES = 5,
     NETWORKS = 6,
     SECURITY_GROUPS = 7,
+    AUTOSCALING_GROUPS = 8,
 
 def from_model_resources_to_ir_names_version1(model_resource: ModelResources):
     switcher = {
@@ -18,6 +20,7 @@ def from_model_resources_to_ir_names_version1(model_resource: ModelResources):
         5: "vms",
         6: "networks",
         7: "computingGroup",
+        8: "group",
     }
     if model_resource.value[0]:
         resource_number = model_resource.value[0]
@@ -34,7 +37,8 @@ def from_model_resources_to_ir_names_version2(model_resource: ModelResources):
         4: "programming_language",
         5: "vms",
         6: "networks",
-        7: "securityGroup",
+        7: "securityGroups",
+        8: "group",
     }
     if model_resource.value[0]:
         resource_number = model_resource.value[0]
@@ -52,21 +56,29 @@ def singleton(class_):
 
 @singleton
 class ModelResourcesUtilities:
-    doml_version = 1
+    doml_version = "2"
 
     def __init__(self, doml_version):
+        logging.info(f"ModelResourcesUtilities setting doml version to {doml_version}")
         self.doml_version = doml_version
 
     def convert_doml_version_into_integer(self):
         return float(self.doml_version)
 
     def get_ir_key_name_from_model_resource(self, model_resource: ModelResources):
-        doml_version_converted = self.convert_doml_version_into_integer()
+        #doml_version_converted = self.convert_doml_version_into_integer()
+        logging.info(f"Found doml version {self.doml_version}")
         switcher = {
-            1: from_model_resources_to_ir_names_version1(model_resource),
-            2: from_model_resources_to_ir_names_version2(model_resource),
+            "1": from_model_resources_to_ir_names_version1(model_resource),
+            "2": from_model_resources_to_ir_names_version2(model_resource),
+            "2.0": from_model_resources_to_ir_names_version2(model_resource),
+            "2.2": from_model_resources_to_ir_names_version2(model_resource),
+            "2.2.2": from_model_resources_to_ir_names_version2(model_resource),
+            "2.3": from_model_resources_to_ir_names_version2(model_resource),
+            "3.0": from_model_resources_to_ir_names_version2(model_resource),
+            "3.1": from_model_resources_to_ir_names_version2(model_resource),
         }
-        return switcher.get(doml_version_converted, from_model_resources_to_ir_names_version1(model_resource))
+        return switcher.get(self.doml_version, from_model_resources_to_ir_names_version2(model_resource))
 
     def set_doml_version(self, doml_version):
         self.doml_version = doml_version

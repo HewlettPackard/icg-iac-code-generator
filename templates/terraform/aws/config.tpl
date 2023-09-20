@@ -21,9 +21,9 @@ input:
   - AWS_SECRET_ACCESS_KEY
   - AWS_REGION
 output:
-{% for vm in vms %}
-  - instance_server_public_key_{{ vm.credentials }}
-  - instance_public_ip_{{ vm.infra_element_name }}
+{%- for vm in vms %}
+  - instance_server_public_key_{{ vm.credentials }}_{{ vm.infra_element_name }}
+  - instance_server_public_ip_{{ vm.infra_element_name }}
   - instance_public_dns_{{ vm.infra_element_name }}
 {% endfor %}
 ...

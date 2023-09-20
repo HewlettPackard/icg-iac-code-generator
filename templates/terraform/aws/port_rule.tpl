@@ -18,8 +18,11 @@
 resource "aws_security_group" "{{ infra_element_name ~ "_security_group" }}" {
   name        = "{{ infra_element_name }}"
   # description  = "Security group rule for port {{ fromPort }}"
-  vpc_id      = aws_vpc.{{vpc_name}}.id ##MISSING VPC NAME REFERENCE FROM DOML
+  vpc_id      = aws_vpc.{{extra_parameters.networks[0].infra_element_name}}.id ##MISSING VPC NAME REFERENCE FROM DOML
   {% for key, value in context().items() %}{% if not callable(value)%} {%if value.kind and value.kind is defined %}
+{#  {% for net_el in extra_parameters["networks"] %}{% for sub_el in net_el %}{%- if sub_el.endswith(value["belongsTo"]) %}    vpc_id      = aws_vpc.{{net_el.infra_element_name}}.id ##MISSING VPC NAME REFERENCE FROM DOML
+{%- endif %}{% endfor %}{% endfor %}
+#}
   {% if value == "INGRESS" %} ingress {% else %} egress {% endif %}  {
     from_port   = {{ value.fromPort }}
     to_port     = {{ value.toPort }}
