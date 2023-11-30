@@ -1,6 +1,55 @@
-# ICG Controller
+# ICG: Infrastuctural Code Generator
 
 This repository contains all the required code and templates to run the ICG component, it also contains a Dockerfile that builds the complete image of the ICG with a provided REST API
+
+What is ICG?
+-------------
+- ICG can be seen as a DOML compiler that generates executable IaC code
+  - Input: DOML (DevOps Modeling Language), is a high level language that allows to model infrastructure
+  - Output: IaC (Infrastructure as Code, e.g. Terraform)
+- ICG is a tool for low-code/no-code IaC development
+- ICG is not an HPE product, it’s a research prototype created by HPE in the context of an EU funded research project (PIACERE)
+
+How does ICG work?
+-------------
+- User creates a model, written in DOML, representing the desired infrastructure
+- ICG parser extracts from DOML the information needed, creating an Intermediate Representation
+- One or more plugins generate the target IaC code
+![ICG how does it work](https://github.com/HewlettPackard/icg-iac-code-generator/assets/9378908/8826ca3e-db51-4c22-b43d-8d3f708c4248)
+
+
+Benefits
+-------------
+- **IaC Benefits**
+  - Lower DevOps costs
+  - Shorter delivery times
+  - Automation and Repeatability
+    - Enables the automation of manual tasks
+    - Each IaC code execution creates the desired infrastructure
+- **ICG benefits**
+  - Generates IaC code to automate provisioning, deployment and configuration
+  - Low-code/No-code: creates IaC code with low or even no IaC code expertise
+  - Overcomes the difficulty in hiring/retaining expert IaC developers
+  - GitOps ready: DOML models can be versioned and ICG can be used in CI/CD pipelines
+  - Expertise from master IaC developers can be captured into templates and reused many times
+  - Extensibility allows this solution to fit multiple problems
+
+ICG internal architecture
+-------------
+- ICG code generation is based on templates
+- ICG architecture is based on plug-ins
+- ICG internal architecture:
+![image](https://github.com/HewlettPackard/icg-iac-code-generator/assets/9378908/787db7be-2053-44cd-a0be-d0f880fabc7d)
+
+ICG usage and extensibility
+-------------
+- ICG can be used as a command line tool
+- ICG can be run as a container and used through its REST interface
+- ICG is extensible, support can be added for
+  - Additional primitives
+  - New target platform
+  - New target IaC language
+  - New modelling languages
 
 Requirements
 -------------
