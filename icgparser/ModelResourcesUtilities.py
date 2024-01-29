@@ -10,6 +10,7 @@ class ModelResources(Enum):
     NETWORKS = 6,
     SECURITY_GROUPS = 7,
     AUTOSCALING_GROUPS = 8,
+    STEP_TYPE = 9,
 
 def from_model_resources_to_ir_names_version1(model_resource: ModelResources):
     switcher = {
@@ -21,6 +22,7 @@ def from_model_resources_to_ir_names_version1(model_resource: ModelResources):
         6: "networks",
         7: "computingGroup",
         8: "group",
+        9: "step_type"
     }
     if model_resource.value[0]:
         resource_number = model_resource.value[0]
@@ -37,8 +39,9 @@ def from_model_resources_to_ir_names_version2(model_resource: ModelResources):
         4: "programming_language",
         5: "vms",
         6: "networks",
-        7: "securityGroups",
-        8: "group",
+        7: "securityGroup",
+        8: "autoScalingGroups",
+        9: "step_type"
     }
     if model_resource.value[0]:
         resource_number = model_resource.value[0]

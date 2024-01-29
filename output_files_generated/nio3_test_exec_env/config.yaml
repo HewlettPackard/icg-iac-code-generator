@@ -1,5 +1,8 @@
 ---
 iac:
 - terraform
-- nio3
+- piacere_monitoring
+- piacere_security
+- potainer
+- co1
 ...

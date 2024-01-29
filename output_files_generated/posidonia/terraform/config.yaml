@@ -7,8 +7,4 @@ input:
   - AWS_SECRET_ACCESS_KEY
   - AWS_REGION
 output:
-  - instance_server_public_key_dbCredentials_OracleDB
-  - instance_server_public_ip_OracleDB
-  - instance_public_dns_OracleDB
-
 ...

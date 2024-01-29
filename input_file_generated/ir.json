@@ -1,272 +1,69 @@
 {
-  "output_path": "output_files_generated/posidonia/",
+  "output_path": "output_files_generated/wordpress/",
   "steps": [
     {
       "data": {
         "credentials": [
           {
-            "algorithm": "RSA",
-            "bits": 4096,
-            "infra_element_name": "dbCredentials",
-            "keyfile": "AKIAUW2K4WS3DFRYCEX4",
-            "user": "username"
-          },
-          {
-            "algorithm": "RSA",
-            "bits": 4096,
-            "infra_element_name": "ESKeyName",
-            "keyfile": "AKIAUW2K4WS3DFRYCEX4",
-            "user": "username"
-          },
-          {
-            "algorithm": "RSA",
-            "bits": 4096,
-            "infra_element_name": "EdiKeyName",
-            "keyfile": "AKIAUW2K4WS3DFRYCEX4",
-            "user": "username"
-          },
-          {
-            "algorithm": "RSA",
-            "bits": 4096,
-            "infra_element_name": "GestautKeyName",
-            "keyfile": "AKIAUW2K4WS3DFRYCEX4",
-            "user": "username"
-          }
-        ],
-        "group": [
-          {
-            "NetworkInterface_elasticsearch_iface": {
-              "associated": [
-                {
-                  "name": "elbsg"
-                }
-              ],
-              "belongsTo": "subnet1",
-              "name": "elasticsearch_iface"
-            },
-            "VirtualMachine_elasticsearch_vm": {
-              "credentials": "ESKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "elasticsearch_vm_image",
-              "ifaces": [
-                {
-                  "name": "elasticsearch_iface"
-                }
-              ],
-              "name": "elasticsearch_vm",
-              "os": "Ubuntu"
-            },
-            "annotations": [
-              {
-                "key": "vm_flavor",
-                "value": "t2.nano"
-              }
-            ],
-            "infra_element_name": "elasticsearch_asg",
-            "loadBalancer": "DEFAULT",
-            "machineDefinition": "elasticsearch_vm",
-            "maps": "elasticsearch_asg",
-            "max": 1,
-            "min": 1,
-            "name": "asg1",
-            "preexisting": false,
-            "vm_flavor": "t2.nano"
-          },
-          {
-            "NetworkInterface_edi_iface": {
-              "associated": [
-                {
-                  "name": "checkmk"
-                }
-              ],
-              "belongsTo": "subnet3",
-              "name": "edi_iface"
-            },
-            "VirtualMachine_edi_vm": {
-              "credentials": "EdiKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "edi_vm_image",
-              "ifaces": [
-                {
-                  "name": "edi_iface"
-                }
-              ],
-              "name": "edi_vm",
-              "os": "Ubuntu"
-            },
-            "annotations": [
-              {
-                "key": "vm_flavor",
-                "value": "t2.nano"
-              }
-            ],
-            "infra_element_name": "edi_asg",
-            "loadBalancer": "DEFAULT",
-            "machineDefinition": "edi_vm",
-            "maps": "edi_asg",
-            "max": 1,
-            "min": 1,
-            "name": "asg2",
-            "preexisting": false,
-            "vm_flavor": "t2.nano"
-          },
-          {
-            "NetworkInterface_gestaut_iface": {
-              "associated": [
-                {
-                  "name": "sg"
-                }
-              ],
-              "belongsTo": "subnet2",
-              "name": "gestaut_iface"
-            },
-            "VirtualMachine_gestaut_vm": {
-              "credentials": "GestautKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "gestaut_vm_image",
-              "ifaces": [
-                {
-                  "name": "gestaut_iface"
-                }
-              ],
-              "name": "gestaut_vm",
-              "os": "Ubuntu"
-            },
-            "annotations": [
-              {
-                "key": "vm_flavor",
-                "value": "t2.nano"
-              }
-            ],
-            "infra_element_name": "gestaut_asg",
-            "loadBalancer": "DEFAULT",
-            "machineDefinition": "gestaut_vm",
-            "maps": "gestaut_asg",
-            "max": 1,
-            "min": 1,
-            "name": "asg3",
-            "preexisting": false,
-            "vm_flavor": "t2.nano"
+            "infra_element_name": "ssh_key",
+            "key": "local path to ssh key",
+            "user": "myuser"
           }
         ],
         "network": [
           {
-            "addressRange": "10.100.1.0/24",
             "connectedIfaces": [
               {
-                "name": "db1"
+                "name": "i1"
               },
               {
-                "name": "elasticsearch_iface"
+                "name": "i2"
               }
             ],
-            "connectedTo": [
-              {
-                "addressRange": "10.100.2.0/24",
-                "name": "subnet2"
-              }
-            ],
-            "infra_element_name": "subnet1"
-          },
-          {
-            "addressRange": "10.100.2.0/24",
-            "connectedIfaces": [
-              {
-                "name": "db2"
-              },
-              {
-                "name": "gestaut_iface"
-              }
-            ],
-            "connectedTo": [
-              {
-                "addressRange": "10.100.1.0/24",
-                "name": "subnet1"
-              }
-            ],
-            "infra_element_name": "subnet2"
-          },
-          {
-            "addressRange": "10.100.3.0/24",
-            "connectedIfaces": [
-              {
-                "name": "db3"
-              },
-              {
-                "name": "edi_iface"
-              }
-            ],
-            "infra_element_name": "subnet3"
+            "infra_element_name": "subnet1",
+            "protocol": "TCP/IP"
           }
         ],
         "networks": [
           {
             "Subnet_subnet1": {
-              "addressRange": "10.100.1.0/24",
               "connectedIfaces": [
                 {
-                  "name": "db1"
+                  "name": "i1"
                 },
                 {
-                  "name": "elasticsearch_iface"
+                  "name": "i2"
                 }
               ],
-              "connectedTo": [
-                {
-                  "addressRange": "10.100.2.0/24",
-                  "name": "subnet2"
-                }
-              ],
-              "name": "subnet1"
+              "name": "subnet1",
+              "protocol": "TCP/IP"
             },
-            "Subnet_subnet2": {
-              "addressRange": "10.100.2.0/24",
-              "connectedIfaces": [
-                {
-                  "name": "db2"
-                },
-                {
-                  "name": "gestaut_iface"
-                }
-              ],
-              "connectedTo": [
-                {
-                  "addressRange": "10.100.1.0/24",
-                  "name": "subnet1"
-                }
-              ],
-              "name": "subnet2"
-            },
-            "Subnet_subnet3": {
-              "addressRange": "10.100.3.0/24",
-              "connectedIfaces": [
-                {
-                  "name": "db3"
-                },
-                {
-                  "name": "edi_iface"
-                }
-              ],
-              "name": "subnet3"
-            },
-            "addressRange": "10.100.0.0/16",
-            "infra_element_name": "vpc",
-            "maps": "vpc",
-            "name": "concrete_vpc",
+            "addressRange": "10.10.10.0/24",
+            "infra_element_name": "net1",
+            "infra_subnets": [
+              {
+                "connectedIfaces": [
+                  {
+                    "name": "i1"
+                  },
+                  {
+                    "name": "i2"
+                  }
+                ],
+                "name": "subnet1",
+                "protocol": "TCP/IP"
+              }
+            ],
+            "maps": "net1",
+            "name": "concrete_net",
             "preexisting": false,
-            "protocol": "TCP/IP",
+            "protocol": "tcp/ip",
             "subnets": [
               {
                 "addressRange": "10.100.1.0/24",
-                "name": "subnet1"
-              },
-              {
-                "addressRange": "10.100.2.0/24",
-                "name": "subnet2"
-              },
-              {
-                "addressRange": "10.100.3.0/24",
-                "name": "subnet3"
+                "maps": "subnet1",
+                "name": "concrete_subnet",
+                "preexisting": false
               }
             ]
           }
@@ -276,208 +73,58 @@
             "provider_name": "aws"
           }
         ],
-        "vMImage": [
-          {
-            "generatedVMs": [
-              {
-                "disabledMonitorings": [],
-                "name": "elasticsearch_vm",
-                "os": "Ubuntu"
-              }
-            ],
-            "infra_element_name": "elasticsearch_vm_image",
-            "kind": "SCRIPT"
-          },
-          {
-            "generatedVMs": [
-              {
-                "disabledMonitorings": [],
-                "name": "edi_vm",
-                "os": "Ubuntu"
-              }
-            ],
-            "infra_element_name": "edi_vm_image",
-            "kind": "SCRIPT"
-          },
-          {
-            "generatedVMs": [
-              {
-                "disabledMonitorings": [],
-                "name": "gestaut_vm",
-                "os": "Ubuntu"
-              }
-            ],
-            "infra_element_name": "gestaut_vm_image",
-            "kind": "SCRIPT"
-          }
-        ],
-        "virtualMachine": [
-          {
-            "NetworkInterface_elasticsearch_iface": {
-              "associated": [
-                {
-                  "name": "elbsg"
-                }
-              ],
-              "belongsTo": "subnet1",
-              "name": "elasticsearch_iface"
-            },
-            "credentials": "ESKeyName",
-            "disabledMonitorings": [],
-            "generatedFrom": "elasticsearch_vm_image",
-            "ifaces": [
-              {
-                "name": "elasticsearch_iface"
-              }
-            ],
-            "infra_element_name": "elasticsearch_vm",
-            "os": "Ubuntu"
-          },
-          {
-            "NetworkInterface_edi_iface": {
-              "associated": [
-                {
-                  "name": "checkmk"
-                }
-              ],
-              "belongsTo": "subnet3",
-              "name": "edi_iface"
-            },
-            "credentials": "EdiKeyName",
-            "disabledMonitorings": [],
-            "generatedFrom": "edi_vm_image",
-            "ifaces": [
-              {
-                "name": "edi_iface"
-              }
-            ],
-            "infra_element_name": "edi_vm",
-            "os": "Ubuntu"
-          },
-          {
-            "NetworkInterface_gestaut_iface": {
-              "associated": [
-                {
-                  "name": "sg"
-                }
-              ],
-              "belongsTo": "subnet2",
-              "name": "gestaut_iface"
-            },
-            "credentials": "GestautKeyName",
-            "disabledMonitorings": [],
-            "generatedFrom": "gestaut_vm_image",
-            "ifaces": [
-              {
-                "name": "gestaut_iface"
-              }
-            ],
-            "infra_element_name": "gestaut_vm",
-            "os": "Ubuntu"
-          }
-        ],
-        "vmImages": [
-          {
-            "generatedVMs": [
-              {
-                "disabledMonitorings": [],
-                "name": "edi_vm",
-                "os": "Ubuntu"
-              }
-            ],
-            "image_name": "ami-Od89299d2f7cOf49b",
-            "infra_element_name": "edi_vm_image",
-            "kind": "SCRIPT",
-            "maps": "edi_vm_image",
-            "name": "concrete_edi_vm_image",
-            "preexisting": false
-          },
-          {
-            "generatedVMs": [
-              {
-                "disabledMonitorings": [],
-                "name": "gestaut_vm",
-                "os": "Ubuntu"
-              }
-            ],
-            "image_name": "ami-012e54b30d5c6bc9d",
-            "infra_element_name": "gestaut_vm_image",
-            "kind": "SCRIPT",
-            "maps": "gestaut_vm_image",
-            "name": "concrete_gestaut_vm_image",
-            "preexisting": false
-          },
-          {
-            "generatedVMs": [
-              {
-                "disabledMonitorings": [],
-                "name": "elasticsearch_vm",
-                "os": "Ubuntu"
-              }
-            ],
-            "image_name": "ami-040182628d683524a",
-            "infra_element_name": "elasticsearch_vm_image",
-            "kind": "SCRIPT",
-            "maps": "elasticsearch_vm_image",
-            "name": "concrete_elasticsearch_vm_image",
-            "preexisting": false
-          }
-        ],
         "vms": [
           {
-            "NetworkInterface_db1": {
-              "associated": [
-                {
-                  "name": "dbsg"
-                }
-              ],
+            "NetworkInterface_i1": {
               "belongsTo": "subnet1",
-              "name": "db1"
-            },
-            "NetworkInterface_db2": {
-              "associated": [
-                {
-                  "name": "dbsg"
-                }
-              ],
-              "belongsTo": "subnet2",
-              "name": "db2"
-            },
-            "NetworkInterface_db3": {
-              "associated": [
-                {
-                  "name": "dbsg"
-                }
-              ],
-              "belongsTo": "subnet3",
-              "name": "db3"
+              "name": "i1"
             },
             "annotations": [
               {
                 "key": "vm_flavor",
-                "value": "t2.nano"
+                "value": "t2.micro"
               }
             ],
-            "credentials": "dbCredentials",
+            "credentials": "ssh_key",
             "disabledMonitorings": [],
             "ifaces": [
               {
-                "name": "db1"
-              },
-              {
-                "name": "db2"
-              },
-              {
-                "name": "db3"
+                "belongsTo": "subnet1",
+                "name": "i1"
               }
             ],
-            "infra_element_name": "OracleDB",
-            "maps": "OracleDB",
-            "name": "concrete_oracleDB",
-            "os": "Ubuntu",
+            "infra_element_name": "vm1",
+            "maps": "vm1",
+            "name": "concrete_vm1",
+            "os": "ubuntu-20.04.3",
             "preexisting": false,
-            "storage": "20",
-            "vm_flavor": "t2.nano"
+            "vm_flavor": "t2.micro"
+          },
+          {
+            "NetworkInterface_i2": {
+              "belongsTo": "subnet1",
+              "name": "i2"
+            },
+            "annotations": [
+              {
+                "key": "vm_flavor",
+                "value": "t2.micro"
+              }
+            ],
+            "credentials": "ssh_key",
+            "disabledMonitorings": [],
+            "ifaces": [
+              {
+                "belongsTo": "subnet1",
+                "name": "i2"
+              }
+            ],
+            "infra_element_name": "vm2",
+            "maps": "vm2",
+            "name": "concrete_vm2",
+            "os": "ubuntu-20.04.3",
+            "preexisting": false,
+            "vm_flavor": "t2.micro"
           }
         ]
       },
@@ -489,77 +136,63 @@
           "name": "performance_monitoring",
           "nodes": [
             {
-              "NetworkInterface_db1": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
+              "NetworkInterface_i1": {
                 "belongsTo": "subnet1",
-                "name": "db1"
-              },
-              "NetworkInterface_db2": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
-                "belongsTo": "subnet2",
-                "name": "db2"
-              },
-              "NetworkInterface_db3": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
-                "belongsTo": "subnet3",
-                "name": "db3"
+                "name": "i1"
               },
               "annotations": [
                 {
                   "key": "vm_flavor",
-                  "value": "t2.nano"
+                  "value": "t2.micro"
                 }
               ],
-              "credentials": "dbCredentials",
+              "credentials": "ssh_key",
               "disabledMonitorings": [],
               "ifaces": [
                 {
-                  "name": "db1"
-                },
-                {
-                  "name": "db2"
-                },
-                {
-                  "name": "db3"
+                  "belongsTo": "subnet1",
+                  "name": "i1"
                 }
               ],
-              "infra_element_name": "OracleDB",
-              "maps": "OracleDB",
-              "name": "concrete_oracleDB",
-              "os": "Ubuntu",
+              "infra_element_name": "vm1",
+              "maps": "vm1",
+              "name": "concrete_vm1",
+              "os": "ubuntu-20.04.3",
               "preexisting": false,
-              "storage": "20",
-              "vm_flavor": "t2.nano"
+              "vm_flavor": "t2.micro"
             },
             {
-              "credentials": "GestautKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "gestaut_vm_image",
-              "ifaces": [
+              "NetworkInterface_i2": {
+                "belongsTo": "subnet1",
+                "name": "i2"
+              },
+              "annotations": [
                 {
-                  "name": "gestaut_iface"
+                  "key": "vm_flavor",
+                  "value": "t2.micro"
                 }
               ],
-              "name": "gestaut_vm",
-              "os": "Ubuntu"
+              "credentials": "ssh_key",
+              "disabledMonitorings": [],
+              "ifaces": [
+                {
+                  "belongsTo": "subnet1",
+                  "name": "i2"
+                }
+              ],
+              "infra_element_name": "vm2",
+              "maps": "vm2",
+              "name": "concrete_vm2",
+              "os": "ubuntu-20.04.3",
+              "preexisting": false,
+              "vm_flavor": "t2.micro"
             }
           ]
         }
       },
       "programming_language": "ansible",
-      "step_name": "performance_monitoring"
+      "step_name": "performance_monitoring",
+      "step_type": "SoftwareComponent"
     },
     {
       "data": {
@@ -567,252 +200,223 @@
           "name": "security_monitoring",
           "nodes": [
             {
-              "NetworkInterface_db1": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
+              "NetworkInterface_i1": {
                 "belongsTo": "subnet1",
-                "name": "db1"
-              },
-              "NetworkInterface_db2": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
-                "belongsTo": "subnet2",
-                "name": "db2"
-              },
-              "NetworkInterface_db3": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
-                "belongsTo": "subnet3",
-                "name": "db3"
+                "name": "i1"
               },
               "annotations": [
                 {
                   "key": "vm_flavor",
-                  "value": "t2.nano"
+                  "value": "t2.micro"
                 }
               ],
-              "credentials": "dbCredentials",
+              "credentials": "ssh_key",
               "disabledMonitorings": [],
               "ifaces": [
                 {
-                  "name": "db1"
-                },
-                {
-                  "name": "db2"
-                },
-                {
-                  "name": "db3"
+                  "belongsTo": "subnet1",
+                  "name": "i1"
                 }
               ],
-              "infra_element_name": "OracleDB",
-              "maps": "OracleDB",
-              "name": "concrete_oracleDB",
-              "os": "Ubuntu",
+              "infra_element_name": "vm1",
+              "maps": "vm1",
+              "name": "concrete_vm1",
+              "os": "ubuntu-20.04.3",
               "preexisting": false,
-              "storage": "20",
-              "vm_flavor": "t2.nano"
+              "vm_flavor": "t2.micro"
             },
             {
-              "credentials": "GestautKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "gestaut_vm_image",
-              "ifaces": [
-                {
-                  "name": "gestaut_iface"
-                }
-              ],
-              "name": "gestaut_vm",
-              "os": "Ubuntu"
-            }
-          ]
-        }
-      },
-      "programming_language": "ansible",
-      "step_name": "security_monitoring"
-    },
-    {
-      "data": {
-        "Gestaut": {
-          "consumedInterfaces": [
-            {
-              "name": "dbAccess"
-            },
-            {
-              "name": "search"
-            }
-          ],
-          "exposedInterfaces": [
-            {
-              "name": "http"
-            },
-            {
-              "name": "https"
-            }
-          ],
-          "isPersistent": false,
-          "name": "Gestaut",
-          "nodes": [
-            {
-              "credentials": "GestautKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "gestaut_vm_image",
-              "ifaces": [
-                {
-                  "name": "gestaut_iface"
-                }
-              ],
-              "name": "gestaut_vm",
-              "os": "Ubuntu"
-            }
-          ]
-        }
-      },
-      "programming_language": "ansible",
-      "step_name": "Gestaut"
-    },
-    {
-      "data": {
-        "ElasticSearch": {
-          "consumedInterfaces": [
-            {
-              "name": "dbAccess"
-            }
-          ],
-          "exposedInterfaces": [
-            {
-              "name": "search"
-            }
-          ],
-          "isPersistent": false,
-          "name": "ElasticSearch",
-          "nodes": [
-            {
-              "credentials": "ESKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "elasticsearch_vm_image",
-              "ifaces": [
-                {
-                  "name": "elasticsearch_iface"
-                }
-              ],
-              "name": "elasticsearch_vm",
-              "os": "Ubuntu"
-            }
-          ]
-        }
-      },
-      "programming_language": "ansible",
-      "step_name": "ElasticSearch"
-    },
-    {
-      "data": {
-        "Edi": {
-          "consumedInterfaces": [
-            {
-              "name": "dbAccess"
-            }
-          ],
-          "exposedInterfaces": [
-            {
-              "name": "edi"
-            }
-          ],
-          "isPersistent": false,
-          "name": "Edi",
-          "nodes": [
-            {
-              "credentials": "EdiKeyName",
-              "disabledMonitorings": [],
-              "generatedFrom": "edi_vm_image",
-              "ifaces": [
-                {
-                  "name": "edi_iface"
-                }
-              ],
-              "name": "edi_vm",
-              "os": "Ubuntu"
-            }
-          ]
-        }
-      },
-      "programming_language": "ansible",
-      "step_name": "Edi"
-    },
-    {
-      "data": {
-        "postgres": {
-          "isPersistent": false,
-          "name": "postgres",
-          "nodes": [
-            {
-              "NetworkInterface_db1": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
+              "NetworkInterface_i2": {
                 "belongsTo": "subnet1",
-                "name": "db1"
-              },
-              "NetworkInterface_db2": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
-                "belongsTo": "subnet2",
-                "name": "db2"
-              },
-              "NetworkInterface_db3": {
-                "associated": [
-                  {
-                    "name": "dbsg"
-                  }
-                ],
-                "belongsTo": "subnet3",
-                "name": "db3"
+                "name": "i2"
               },
               "annotations": [
                 {
                   "key": "vm_flavor",
-                  "value": "t2.nano"
+                  "value": "t2.micro"
                 }
               ],
-              "credentials": "dbCredentials",
+              "credentials": "ssh_key",
               "disabledMonitorings": [],
               "ifaces": [
                 {
-                  "name": "db1"
-                },
-                {
-                  "name": "db2"
-                },
-                {
-                  "name": "db3"
+                  "belongsTo": "subnet1",
+                  "name": "i2"
                 }
               ],
-              "infra_element_name": "OracleDB",
-              "maps": "OracleDB",
-              "name": "concrete_oracleDB",
-              "os": "Ubuntu",
+              "infra_element_name": "vm2",
+              "maps": "vm2",
+              "name": "concrete_vm2",
+              "os": "ubuntu-20.04.3",
               "preexisting": false,
-              "storage": "20",
-              "vm_flavor": "t2.nano"
+              "vm_flavor": "t2.micro"
             }
           ]
         }
       },
       "programming_language": "ansible",
-      "step_name": "postgres"
+      "step_name": "security_monitoring",
+      "step_type": "SoftwareComponent"
+    },
+    {
+      "data": {
+        "self_healing_monitoring": {
+          "name": "self_healing_monitoring",
+          "nodes": [
+            {
+              "NetworkInterface_i1": {
+                "belongsTo": "subnet1",
+                "name": "i1"
+              },
+              "annotations": [
+                {
+                  "key": "vm_flavor",
+                  "value": "t2.micro"
+                }
+              ],
+              "credentials": "ssh_key",
+              "disabledMonitorings": [],
+              "ifaces": [
+                {
+                  "belongsTo": "subnet1",
+                  "name": "i1"
+                }
+              ],
+              "infra_element_name": "vm1",
+              "maps": "vm1",
+              "name": "concrete_vm1",
+              "os": "ubuntu-20.04.3",
+              "preexisting": false,
+              "vm_flavor": "t2.micro"
+            },
+            {
+              "NetworkInterface_i2": {
+                "belongsTo": "subnet1",
+                "name": "i2"
+              },
+              "annotations": [
+                {
+                  "key": "vm_flavor",
+                  "value": "t2.micro"
+                }
+              ],
+              "credentials": "ssh_key",
+              "disabledMonitorings": [],
+              "ifaces": [
+                {
+                  "belongsTo": "subnet1",
+                  "name": "i2"
+                }
+              ],
+              "infra_element_name": "vm2",
+              "maps": "vm2",
+              "name": "concrete_vm2",
+              "os": "ubuntu-20.04.3",
+              "preexisting": false,
+              "vm_flavor": "t2.micro"
+            }
+          ]
+        }
+      },
+      "programming_language": "ansible",
+      "step_name": "self_healing_monitoring",
+      "step_type": "SoftwareComponent"
+    },
+    {
+      "data": {
+        "mysql": {
+          "db_name": "app1",
+          "db_password": "app1user",
+          "db_user": "app1user",
+          "exposedInterfaces": [
+            {
+              "name": "DB_interface"
+            }
+          ],
+          "isPersistent": false,
+          "name": "mysql",
+          "nodes": [
+            {
+              "NetworkInterface_i1": {
+                "belongsTo": "subnet1",
+                "name": "i1"
+              },
+              "annotations": [
+                {
+                  "key": "vm_flavor",
+                  "value": "t2.micro"
+                }
+              ],
+              "credentials": "ssh_key",
+              "disabledMonitorings": [],
+              "ifaces": [
+                {
+                  "belongsTo": "subnet1",
+                  "name": "i1"
+                }
+              ],
+              "infra_element_name": "vm1",
+              "maps": "vm1",
+              "name": "concrete_vm1",
+              "os": "ubuntu-20.04.3",
+              "preexisting": false,
+              "vm_flavor": "t2.micro"
+            }
+          ]
+        }
+      },
+      "programming_language": "ansible",
+      "step_name": "mysql",
+      "step_type": "SoftwareComponent"
+    },
+    {
+      "data": {
+        "wordpress": {
+          "consumedInterfaces": [
+            {
+              "name": "DB_interface"
+            }
+          ],
+          "isPersistent": false,
+          "name": "wordpress",
+          "nodes": [
+            {
+              "NetworkInterface_i2": {
+                "belongsTo": "subnet1",
+                "name": "i2"
+              },
+              "annotations": [
+                {
+                  "key": "vm_flavor",
+                  "value": "t2.micro"
+                }
+              ],
+              "credentials": "ssh_key",
+              "disabledMonitorings": [],
+              "ifaces": [
+                {
+                  "belongsTo": "subnet1",
+                  "name": "i2"
+                }
+              ],
+              "infra_element_name": "vm2",
+              "maps": "vm2",
+              "name": "concrete_vm2",
+              "os": "ubuntu-20.04.3",
+              "preexisting": false,
+              "vm_flavor": "t2.micro"
+            }
+          ],
+          "wordpress_db_host": "db_host",
+          "wordpress_db_name": "app1",
+          "wordpress_db_password": "app1user",
+          "wordpress_db_user": "app1user",
+          "wordpress_table_prefix": "wp"
+        }
+      },
+      "programming_language": "ansible",
+      "step_name": "wordpress",
+      "step_type": "SoftwareComponent"
     }
   ]
 }

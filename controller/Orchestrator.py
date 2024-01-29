@@ -25,6 +25,7 @@ from icgparser import ModelParser, PiacereInternalToolsIntegrator, IntermediateR
 from icgparser.ModelResourcesUtilities import ModelResources, get_ir_key_name
 from plugin import AnsiblePlugin, TerraformPlugin, TemplateUtils, DockerComposePlugin
 from utility.FileParsingUtility import replace_none_with_empty_str
+from utility.Graph import Graph
 
 
 class CompressFolder:
@@ -55,38 +56,46 @@ def choose_plugin(parameters, template_generated_folder):
     # os.system('rm -f /opt/output_files_generated/*')
     logging.info("Choosing plugin")
     metadata_root_folder = {"iac": []}
+    # Inner function to be called when visiting graph of container dependencies
+    def append_container_name(container_name):
+        metadata_root_folder["iac"].append(container_name)
     for step in parameters["steps"]:
-        if step["programming_language"] == "ansible":
-            ### IMPORTANT, TO SOLVE
-            ### ADDED EXPLICIT EXCEPTION FOR SIMPA UC
-            ###
-            if step["step_name"] == "security_monitoring" or step["step_name"] == "performance_monitoring":
-                if not "nio3" in parameters["output_path"]:
+        if step:
+            if step["programming_language"] == "ansible":
+                ### IMPORTANT, TO SOLVE
+                ### ADDED EXPLICIT EXCEPTION FOR SIMPA UC
+                ###
+                if step["step_name"] == "security_monitoring" or step["step_name"] == "performance_monitoring" or step["step_name"] == "self_healing_monitoring":
                     logging.info("Ansible Plugin chosen")
                     step_name = step[get_ir_key_name(ModelResources.STEP_NAME)]
                     metadata_root_folder["iac"].append(step_name)
                     # input_data = step["data"]
                     AnsiblePlugin.create_files(step, template_generated_folder)
-            else:
-                logging.info("Ansible Plugin chosen")
-                step_name = step[get_ir_key_name(ModelResources.STEP_NAME)]
-                metadata_root_folder["iac"].append(step_name)
-                # input_data = step["data"]
-                AnsiblePlugin.create_files(step, template_generated_folder)
-        elif step["programming_language"] == "terraform":
-            logging.info("Terraform Plugin chosen")
-            metadata_root_folder["iac"].append("terraform")
-            input_data = step["data"]
-            iac_output_folder = template_generated_folder + "terraform"
-            # plugin_metadata = {"input": ["openstack_username", "openstack_password", "openstack_auth_url"],
-            plugin_metadata = {"input": [], "output": [], "engine": "terraform"}
-            save_file(plugin_metadata, iac_output_folder + "/config.yaml", output_extensions="YAML")
-            TerraformPlugin.create_files(input_data, iac_output_folder)
-        elif step["programming_language"] == "docker-compose":
-            logging.info("Docker Compose Plugin chosen")
-            # input_data = step["data"]
-            metadata_root_folder["iac"].append("docker-compose")
-            DockerComposePlugin.create_files(step, template_generated_folder)
+                else:
+                    logging.info("Ansible Plugin chosen")
+                    step_name = step[get_ir_key_name(ModelResources.STEP_NAME)]
+                    metadata_root_folder["iac"].append(step_name)
+                    # input_data = step["data"]
+                    AnsiblePlugin.create_files(step, template_generated_folder)
+            elif step["programming_language"] == "terraform":
+                logging.info("Terraform Plugin chosen")
+                metadata_root_folder["iac"].append("terraform")
+                input_data = step["data"]
+                iac_output_folder = template_generated_folder + "terraform"
+                # plugin_metadata = {"input": ["openstack_username", "openstack_password", "openstack_auth_url"],
+                plugin_metadata = {"input": [], "output": [], "engine": "terraform"}
+                save_file(plugin_metadata, iac_output_folder + "/config.yaml", output_extensions="YAML")
+                TerraformPlugin.create_files(input_data, iac_output_folder)
+            elif step["programming_language"] == "docker-compose":
+                logging.info("Docker Compose Plugin chosen")
+                input_data = step["data"]
+                # metadata_root_folder["iac"].append("docker-compose")
+                container_graph = DockerComposePlugin.create_container_dependency_graph(input_data,
+                                                                                        Graph(f=append_container_name))
+                # visiting the graph; container names are appended in the right order to the ilst metadata_root_folder["iac"]
+                container_graph.visit()
+                extra_param = parameters["steps"][0]["data"]["containerImages"]
+                DockerComposePlugin.create_files(step, template_generated_folder, extra_param)
     gaiax_file = create_gaiax_file(parameters)
     save_file(gaiax_file, template_generated_folder + "/gaiax_self_description.yaml", output_extensions="YAML")
     save_file(metadata_root_folder, template_generated_folder + "/config.yaml", output_extensions="YAML")

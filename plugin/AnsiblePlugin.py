@@ -57,15 +57,22 @@ def is_external_code(resource_params):
 def create_files(step, output_path):
     language = step[get_ir_key_name(ModelResources.LANGUAGE)]
     step_name = step[get_ir_key_name(ModelResources.STEP_NAME)]
+    step_type = step[get_ir_key_name(ModelResources.STEP_TYPE)]
     parameters = step["data"]
     for resource_name, resource in parameters.items():
         logging.info("Creating template for resource '%s'", resource_name)
-        operating_system = find_operating_system(resource)
+        if "SaaS" in step_type:
+            # handle SaaSDBMS and other SaaS types
+            operating_system = "saas"
+        else:
+            operating_system = find_operating_system(resource)
         # for resource_params in parameters[resource_name]:
         resource_params = parameters[resource_name]
         if is_external_code(resource_params):
             ansible_template_path = TemplateUtils.find_template_path(language, operating_system, "external_iac")
             template = TemplateUtils.read_template(ansible_template_path)
+        elif "SaaS" in step_type:
+            ansible_template_path = TemplateUtils.find_template_path(language, operating_system, step_type)
         else:  
             ansible_template_path = TemplateUtils.find_template_path(language, operating_system, resource_name)
         if ansible_template_path:

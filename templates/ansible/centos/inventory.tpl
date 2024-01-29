@@ -24,7 +24,7 @@ instance_server_public_ip_{{ node.infra_element_name }}={% raw %}{{ instance_ser
 
 [{{ "servers_for_" ~ name }}]
 {%- for node in nodes %}
-{% raw %}{{ instance_server_public_ip_{% endraw %}{{ node.infra_element_name }} {% raw %}}}{% endraw %}
+{% raw %}{{ instance_server_public_ip_{% endraw %}{{ node.infra_element_name }} {% raw %}}}{% endraw %} doml_element_name={{ node.infra_element_name }} doml_element_type={{ node.vm_flavor }}
 {%- endfor %}
 
 [{{ "servers_for_" ~ name }}:vars]

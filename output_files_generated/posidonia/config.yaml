@@ -3,8 +3,9 @@ iac:
 - terraform
 - performance_monitoring
 - security_monitoring
+- self_healing_monitoring
 - Gestaut
 - ElasticSearch
 - Edi
-- postgres
+- oracledb
 ...
